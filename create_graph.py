@@ -77,12 +77,12 @@ with g1.as_default() as g:
             new_split = []
             for i in range(3):
                 oxy = split[i][:, :, :, 0:3]
-                xy = tf.sigmoid(xy)
+                oxy = tf.sigmoid(oxy)
                 wh = split[i][:, :, :, 3:5]
                 wh = tf.constant(anchor[i], dtype = tf.float32) * tf.exp(wh)
                 c = split[i][:, :, :, 5: ]
                 c = tf.sigmoid(c)
-                new_split.append(xy)
+                new_split.append(oxy)
                 new_split.append(wh)
                 new_split.append(c)
                 #obj,x,y,w,h,classes
@@ -153,14 +153,22 @@ with g1.as_default() as g:
         #23
         yolo(23, "YOLO/conv_22/out:0", anchor2)
 
+import sys
 import os
 import shutil
-if os.path.exists("./graph"): shutil.rmtree("./graph")
+if os.path.exists("./graph"):
+    Y = input("Are you sure to delete the old graph? [Y, N] ")
+    if Y.lower() == "y":
+        shutil.rmtree("./graph")
+    else:
+        sys.exit(0)
 os.mkdir("./graph")
 
 tf.summary.FileWriter("./graph", g)
-saver = tf.train.Saver()
+
 with tf.Session(graph = g) as sess:
+    sess.run(tf.global_variables_initializer())
+    saver = tf.train.Saver()
     saver.save(sess, "./graph/tiny-yolo.ckpt")
 
 
