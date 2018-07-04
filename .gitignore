@@ -2,6 +2,7 @@
 *.tgz
 *.jpg
 *.txt
+__pycache__
 
 # OS Generated #
 .DS_Store*

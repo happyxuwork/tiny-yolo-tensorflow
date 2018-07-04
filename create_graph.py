@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import tensorflow as tf
-
+import numpy as np
 g1 = tf.Graph()
 
 with g1.as_default() as g:
@@ -75,14 +75,28 @@ with g1.as_default() as g:
             batch, height, width, in_channels = in_tensor.get_shape().as_list()
             split = tf.split(in_tensor, 3, axis = 3)
             new_split = []
+            offset_x_np = np.zeros((batch, height, width, in_channels//3))
+            for i in range(width):
+                offset_x_np[:, :, i, :] = i/width
+            offset_y_np = np.zeros((batch, height, width, in_channels//3))
+            for i in range(height):
+                offset_y_np[:, :, i, :] = i/height
+            offset_x = tf.constant(offset_x_np, dtype = tf.float32)
+            offset_y = tf.constant(offset_y_np, dtype = tf.float32)
             for i in range(3):
-                oxy = split[i][:, :, :, 0:3]
-                oxy = tf.sigmoid(oxy)
+                o = split[i][:, :, :, 0:1]
+                o = tf.sigmoid(o)
+                x = split[i][:, :, :, 1:2]
+                x = tf.sigmoid(x)/width + offset_x
+                y = split[i][:, :, :, 2:3]
+                y = tf.sigmoid(y)/height + offset_y
                 wh = split[i][:, :, :, 3:5]
                 wh = tf.constant(anchor[i], dtype = tf.float32) * tf.exp(wh)
                 c = split[i][:, :, :, 5: ]
                 c = tf.sigmoid(c)
-                new_split.append(oxy)
+                new_split.append(o)
+                new_split.append(x)
+                new_split.append(y)
                 new_split.append(wh)
                 new_split.append(c)
                 #obj,x,y,w,h,classes
@@ -93,8 +107,8 @@ with g1.as_default() as g:
 
         height = 416
         width = 416
-        anchor1 = [(81,82),  (135,169),  (344,319)]
-        anchor2 = [(10,14),  (23,27),  (37,58)]
+        anchor1 = ((344,319), (135,169), (81,82))
+        anchor2 = ((37,58), (23,27), (10,14))
         classes = 80
         batch = 1
         image_depth = 3
