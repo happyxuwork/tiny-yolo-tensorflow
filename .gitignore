@@ -1,0 +1,11 @@
+*.zip
+*.tgz
+*.jpg
+*.txt
+
+# OS Generated #
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.swp

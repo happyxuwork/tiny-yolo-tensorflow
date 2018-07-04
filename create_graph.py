@@ -101,11 +101,9 @@ with g1.as_default() as g:
         out_width = width//32
         out_depth = 3*(5 + classes)
 
-        X = tf.placeholder(shape = (1, height, width, 3), dtype = tf.float32, name = "X")
-        Y1 = tf.placeholder(shape = (1, out_height, out_width, out_depth), dtype = tf.float32, name = "Y1")
-        Y2 = tf.placeholder(shape = (1, 2*out_height, 2*out_width, out_depth), dtype = tf.float32, name = "Y2")
+        X = tf.placeholder(shape = (1, height, width, 3), dtype = tf.float32, name = "input")
         #0
-        conv_0 = conv(0, "YOLO/X:0", 16, 3, 1)
+        conv_0 = conv(0, "YOLO/input:0", 16, 3, 1)
         #1
         maxpool(1, "YOLO/conv_0/out:0", 2, 2)
         #2
@@ -135,7 +133,7 @@ with g1.as_default() as g:
         #14
         conv(14, "YOLO/conv_13/out:0", 512, 3, 1)
         #15
-        conv(15, "YOLO/conv_14/out:0", 255, 1, 1)
+        conv(15, "YOLO/conv_14/out:0", 255, 1, 1, nonlin = "linear")
         #16
         yolo(16, "YOLO/conv_15/out:0", anchor1)
         #17
@@ -149,9 +147,12 @@ with g1.as_default() as g:
         #21
         conv(21, "YOLO/route_20/out:0", 256, 3, 1)
         #22
-        conv(22, "YOLO/conv_21/out:0", 255, 1, 1)
+        conv(22, "YOLO/conv_21/out:0", 255, 1, 1, nonlin = "linear")
         #23
         yolo(23, "YOLO/conv_22/out:0", anchor2)
+
+        h1 = tf.identity(g.get_tensor_by_name("YOLO/yolo_16/out:0"), "output1")
+        h2 = tf.identity(g.get_tensor_by_name("YOLO/yolo_23/out:0"), "output2")
 
 import sys
 import os
