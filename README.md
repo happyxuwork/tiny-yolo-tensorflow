@@ -1,6 +1,6 @@
 # TINY YOLO v3 model in tensorflow
 
-`
+```
 layer     filters    size              input                output
 
     0 conv     16  3 x 3 / 1   416 x 416 x   3   ->   416 x 416 x  16  0.150 BFLOPs
@@ -51,4 +51,4 @@ layer     filters    size              input                output
 
    23 yolo
 
-`
+```
