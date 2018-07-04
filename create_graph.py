@@ -96,12 +96,14 @@ with g1.as_default() as g:
         anchor1 = [(81,82),  (135,169),  (344,319)]
         anchor2 = [(10,14),  (23,27),  (37,58)]
         classes = 80
+        batch = 1
+        image_depth = 3
 
         out_height = height//32
         out_width = width//32
         out_depth = 3*(5 + classes)
 
-        X = tf.placeholder(shape = (1, height, width, 3), dtype = tf.float32, name = "input")
+        X = tf.placeholder(shape = (batch, height, width, image_depth), dtype = tf.float32, name = "input")
         #0
         conv_0 = conv(0, "YOLO/input:0", 16, 3, 1)
         #1
