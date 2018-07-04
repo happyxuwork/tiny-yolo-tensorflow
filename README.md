@@ -1,5 +1,6 @@
 # TINY YOLO v3 model in tensorflow
 
+tiny-yolo v3 from darknet
 ```
 layer     filters    size              input                output
     0 conv     16  3 x 3 / 1   416 x 416 x   3   ->   416 x 416 x  16  0.150 BFLOPs
@@ -28,6 +29,6 @@ layer     filters    size              input                output
    23 yolo
 ```
 
-# TENSORBOARD
+tensorflow model
 
 ![alt text](https://raw.githubusercontent.com/khanh1412/tiny-yolo-tensorflow/master/tensorboard.png)
