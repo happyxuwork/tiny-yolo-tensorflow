@@ -54,8 +54,21 @@ with tf.Session() as sess:
             loss = (p_loss + class_loss) + Lcoord*(xy_loss+wh_loss)
             loss = tf.identity(loss, name = "loss")
             
-        optimizer = tf.train.AdamOptimizer(learning_rate = 1e-3)
+        optimizer = tf.train.AdamOptimizer(learning_rate = 1e-5)
         trainer = optimizer.minimize(loss, name = "trainer")
+
+    if os.path.exists("./train_graph"):
+        inp = input("Are you sure to delete the old graph? [Y, N] ")
+        if inp.lower() == "y":
+            shutil.rmtree("./train_graph")
+        else:
+            sys.exit(0)
+    os.mkdir("./train_graph")
+
+    train_writer = tf.summary.FileWriter("./train_graph", g)
+    saver = tf.train.Saver()
+    tf.summary.histogram("loss", loss)
+    merge = tf.summary.merge_all()
 
     hm_steps = 400000
     sess.run(tf.global_variables_initializer())
@@ -63,10 +76,14 @@ with tf.Session() as sess:
     for batch in shuffle():
         Xp, Y1p, Y2p = batch
         step += 1
-        _ , lossp = sess.run([trainer, loss], feed_dict = {X: Xp, Y1: Y1p, Y2:Y2p})
+        _ , lossp, summary = sess.run([trainer, loss, merge], feed_dict = {X: Xp, Y1: Y1p, Y2:Y2p})
+        #print(sess.run(tf.reduce_mean(h1), feed_dict = {X:Xp}))
+        train_writer.add_summary(summary, step)
         print("Step {} : loss {}".format(step, lossp))
 
-
+        if (step % 80000 ==0):
+            saver.save(sess, "./train_graph/tiny-yolo-{}.ckpt".format(step))
+        
 
 
 
