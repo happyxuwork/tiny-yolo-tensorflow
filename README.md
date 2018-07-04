@@ -27,3 +27,7 @@ layer     filters    size              input                output
    22 conv    255  1 x 1 / 1    26 x  26 x 256   ->    26 x  26 x 255  0.088 BFLOPs
    23 yolo
 ```
+
+# TENSORBOARD
+
+![alt text](https://raw.githubusercontent.com/khanh1412/tiny-yolo-tensorflow/master/tensorboard.png)
