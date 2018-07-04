@@ -76,16 +76,16 @@ with g1.as_default() as g:
             split = tf.split(in_tensor, 3, axis = 3)
             new_split = []
             for i in range(3):
-                xy = split[i][:, :, :, 0:2]
+                oxy = split[i][:, :, :, 0:3]
                 xy = tf.sigmoid(xy)
-                wh = split[i][:, :, :, 2:4]
+                wh = split[i][:, :, :, 3:5]
                 wh = tf.constant(anchor[i], dtype = tf.float32) * tf.exp(wh)
-                onc = split[i][:, :, :, 4: ]
-                onc = tf.sigmoid(onc)
+                c = split[i][:, :, :, 5: ]
+                c = tf.sigmoid(c)
                 new_split.append(xy)
                 new_split.append(wh)
-                new_split.append(onc)
-                #x,y,w,h,obj,classes
+                new_split.append(c)
+                #obj,x,y,w,h,classes
             
             with g.name_scope("yolo_{}".format(n)):
                 yolo = tf.concat(split, 3, name = "out")
