@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#import sh
+import sh
 import os
 import random
 import numpy as np
@@ -64,9 +64,10 @@ def create(input_size=416, flip=1, crop=0.9, angle=10, color = 0.05):
     im = im*col
     im[im<0] = 0
     im[im>255] = 255
+        #resize to inputsize
+    image = cv2.resize(im, (input_size, input_size), interpolation = cv2.INTER_CUBIC)
+    image = image.reshape((1, input_size, input_size, 3))
 
-    image = im
-    
     #label
 
     label = []
@@ -105,7 +106,8 @@ def create(input_size=416, flip=1, crop=0.9, angle=10, color = 0.05):
 
 if __name__ == "__main__":
     image, label = create()
-    image = image.astype(np.int32)
+    image = image.astype(np.int32).reshape(416,416,3)
+    print(image.shape)
     for obj in label:
         cls, x0, y0, w0, h0 = obj
         x1 = int((x0 - w0/2)*416)
@@ -135,25 +137,28 @@ def which_anchor(box):
 def shuffle(batch_size = 1):
     step = 0
     while (1):
-        yield step
+        #yield step
         
-        if (step!=0):
-            del Xp
-            del Y1p
-            del Y2p
+        #if (step!=0):
+        #    del Xp
+        #    del Y1p
+        #    del Y2p
+        #    os.remove("/dev/shm/X")
+        #    os.remove("/dev/shm/Y1")
+        #    os.remove("/dev/shm/Y2")
         step += 1
 
         #data augmentation
         image, label = create()
-        height, width, depth = image.shape
+        _, height, width, depth = image.shape
         classes = 80
         out_height = height//32
         out_width = width//32
         out_depth = 3*(5+classes)
-        #anchor = ((10,14),  (23,27),  (37,58),  (81,82),  (135,169),  (344,319))
-        Xp = np.memmap("/dev/shm/X_data", dtype = np.float32, mode = "w+", shape = (batch_size, height, width, depth))
-        Y1p = np.memmap("/dev/shm/Y1", dtype = np.float32, mode = "w+", shape = (batch_size, out_height, out_width, out_depth))
-        Y2p = np.memmap("/dev/shm/Y2", dtype = np.float32, mode = "w+", shape = (batch_size, 2*out_height, 2*out_width, out_depth))
+
+        #Xp = np.memmap("/dev/shm/X", dtype = np.float32, mode = "w+", shape = (batch_size, height, width, depth))
+        #Y1p = np.memmap("/dev/shm/Y1", dtype = np.float32, mode = "w+", shape = (batch_size, out_height, out_width, out_depth))
+        #Y2p = np.memmap("/dev/shm/Y2", dtype = np.float32, mode = "w+", shape = (batch_size, 2*out_height, 2*out_width, out_depth))
         
         X = image
         Y1 = np.random.random((batch_size, out_height, out_width, out_depth))
@@ -187,6 +192,8 @@ def shuffle(batch_size = 1):
                 Y2[0, y, x, 4+i*(2*out_depth//3)] = h0
                 Y2[0, y, x, 4:(i+1)*(2*out_depth//3)] = 0
                 Y2[0, y, x, cls] = 1
-        Xp[:] = X[:]
-        Y1p[:] = Y1[:]
-        Y2p[:] = Y2[:]
+        #Xp[:] = X[:]
+        #Y1p[:] = Y1[:]
+        #Y2p[:] = Y2[:]
+
+        yield X, Y1, Y2

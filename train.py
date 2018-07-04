@@ -3,6 +3,9 @@ from data.datahandler import shuffle
 import tensorflow as tf
 import numpy as np
 import time
+import os
+import sys
+import shutil
 
 def read_batch():
     batch_size = 1
@@ -13,10 +16,13 @@ def read_batch():
     out_height = height//32
     out_width = width//32
     out_depth = 3*(5+classes)
-    Xp = np.memmap("/dev/shm/X_data", dtype = np.float32, mode = "r", shape = (batch_size, height, width, depth))
+
+    Xp = np.memmap("/dev/shm/X", dtype = np.float32, mode = "r", shape = (batch_size, height, width, depth))
     Y1p = np.memmap("/dev/shm/Y1", dtype = np.float32, mode = "r", shape = (batch_size, out_height, out_width, out_depth))
     Y2p = np.memmap("/dev/shm/Y2", dtype = np.float32, mode = "r", shape = (batch_size, 2*out_height, 2*out_width, out_depth))
     return Xp, Y1p, Y2p
+
+
 
 saver = tf.train.import_meta_graph("./graph/tiny-yolo.ckpt.meta")
 with tf.Session() as sess:
@@ -52,16 +58,12 @@ with tf.Session() as sess:
         trainer = optimizer.minimize(loss, name = "trainer")
 
     hm_steps = 400000
-    for step in shuffle():
-        if step == 0:
-            print("Start training! ...")
-            time.sleep(1)
-            continue
-        else:
-            batch = read_batch()
+    sess.run(tf.global_variables_initializer())
+    step = 0
+    for batch in shuffle():
         Xp, Y1p, Y2p = batch
+        step += 1
         _ , lossp = sess.run([trainer, loss], feed_dict = {X: Xp, Y1: Y1p, Y2:Y2p})
-
         print("Step {} : loss {}".format(step, lossp))
 
 
