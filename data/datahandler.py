@@ -143,8 +143,8 @@ def create_array():
     out_depth = 3*(5+classes)
     
     X = image
-    Y1 = np.random.random((batch_size, out_height, out_width, out_depth))
-    Y2 = np.random.random((batch_size, 2*out_height, 2*out_width, out_depth))
+    Y1 = np.random.random((1, out_height, out_width, out_depth))
+    Y2 = np.random.random((1, 2*out_height, 2*out_width, out_depth))
     for i in range(3):
         Y1[:, :, :, i*(out_depth//3)] = 1
         Y2[:, :, :, i*(out_depth//3)] = 1
@@ -177,7 +177,7 @@ def create_array():
             Y2[0, y, x, cls] = 1
     return X, Y1, Y2
 
-def shuffle(batch_size = 1):
+def shuffle(batch_size):
     step = 0
     while (1):
         if (step == 0):

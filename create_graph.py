@@ -7,7 +7,7 @@ with g1.as_default() as g:
     with g.name_scope("YOLO"):
         def conv(n, in_name, out_channels, kernel_size, stride, padding="SAME", nonlin="relu", binary=0):
             in_tensor = g.get_tensor_by_name(in_name)
-            batch, height, width, in_channels = in_tensor.get_shape().as_list()
+            batch_size, height, width, in_channels = in_tensor.get_shape().as_list()
             with g.name_scope("conv_{}".format(n)):
                 kernel = tf.Variable(tf.random_normal(shape = [kernel_size, kernel_size, in_channels, out_channels])/100, dtype = tf.float32, name = "kernel")
                 scale = tf.Variable(tf.random_normal(shape = [1,]), dtype = tf.float32, name = "scale")
@@ -34,7 +34,7 @@ with g1.as_default() as g:
  
         def maxpool(n, in_name, kernel_size, stride, padding="SAME"):
             in_tensor = g.get_tensor_by_name(in_name)
-            batch, height, width, in_channels = in_tensor.get_shape().as_list()
+            batch_size, height, width, in_channels = in_tensor.get_shape().as_list()
             with g.name_scope("maxpool_{}".format(n)):
                 ksize = [1, kernel_size, kernel_size, 1]
                 strides = [1, stride, stride, 1]
@@ -60,25 +60,25 @@ with g1.as_default() as g:
  
         def upsample(n, in_name, stride):
             in_tensor = g.get_tensor_by_name(in_name)
-            batch, height, width, in_channels = in_tensor.get_shape().as_list()
+            batch_size, height, width, in_channels = in_tensor.get_shape().as_list()
             out_channels = in_channels
             with g.name_scope("upsample_{}".format(n)):
                 kernel = tf.ones([stride, stride, in_channels, out_channels], name = "kernel")
-                output_shape = [batch, stride*height, stride*width, in_channels]
+                output_shape = [batch_size, stride*height, stride*width, in_channels]
                 strides = [1, stride, stride, 1]
                 padding = "SAME"
                 unsample = tf.nn.conv2d_transpose(in_tensor, kernel, output_shape, strides, name = "out")
             return unsample
  
-        def yolo(n, in_name, anchor, thresh=0.5):#in tensor has shape (batch, height, width, 255)
+        def yolo(n, in_name, anchor, thresh=0.5):#in tensor has shape (batch_size, height, width, 255)
             in_tensor = g.get_tensor_by_name(in_name)
-            batch, height, width, in_channels = in_tensor.get_shape().as_list()
+            batch_size, height, width, in_channels = in_tensor.get_shape().as_list()
             split = tf.split(in_tensor, 3, axis = 3)
             new_split = []
-            offset_x_np = np.zeros((batch, height, width, in_channels//3))
+            offset_x_np = np.zeros((batch_size, height, width, in_channels//3))
             for i in range(width):
                 offset_x_np[:, :, i, :] = i/width
-            offset_y_np = np.zeros((batch, height, width, in_channels//3))
+            offset_y_np = np.zeros((batch_size, height, width, in_channels//3))
             for i in range(height):
                 offset_y_np[:, :, i, :] = i/height
             offset_x = tf.constant(offset_x_np, dtype = tf.float32)
@@ -110,14 +110,14 @@ with g1.as_default() as g:
         anchor1 = ((344,319), (135,169), (81,82))
         anchor2 = ((37,58), (23,27), (10,14))
         classes = 80
-        batch = 1
+        batch_size = 64
         image_depth = 3
 
         out_height = height//32
         out_width = width//32
         out_depth = 3*(5 + classes)
 
-        X = tf.placeholder(shape = (batch, height, width, image_depth), dtype = tf.float32, name = "input")
+        X = tf.placeholder(shape = (batch_size, height, width, image_depth), dtype = tf.float32, name = "input")
         #0
         conv_0 = conv(0, "YOLO/input:0", 16, 3, 1)
         #1

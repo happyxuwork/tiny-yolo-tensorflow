@@ -77,7 +77,7 @@ with tf.Session() as sess:
 
 
 
-    for batch in shuffle():
+    for batch in shuffle(batch_size):
         step, Xp, Y1p, Y2p = batch
         if step == 0:
             time.sleep(1)
@@ -89,8 +89,6 @@ with tf.Session() as sess:
             else:
                 print("Re-random variables!")
                 sess.run(tf.global_variables_initializer())
-
-
 
         _ , lossp, summary = sess.run([trainer, loss, merge], feed_dict = {X: Xp, Y1: Y1p, Y2:Y2p})
 
