@@ -1,2 +1,0 @@
-model_checkpoint_path: "tiny-yolo.ckpt"
-all_model_checkpoint_paths: "tiny-yolo.ckpt"

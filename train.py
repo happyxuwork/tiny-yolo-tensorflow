@@ -54,7 +54,7 @@ with tf.Session() as sess:
             loss = (p_loss + class_loss) + Lcoord*(xy_loss+wh_loss)
             loss = tf.identity(loss, name = "loss")
             
-        optimizer = tf.train.AdamOptimizer(learning_rate = 1e-5)
+        optimizer = tf.train.AdamOptimizer(learning_rate = 1e-3)
         trainer = optimizer.minimize(loss, name = "trainer")
 
     if os.path.exists("./train_graph"):
