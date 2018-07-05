@@ -178,6 +178,20 @@ def create_array():
             Y2[0, y, x, cls] = 1
     return X, Y1, Y2
 
+def create_many_arrays(batch_size):
+    X = []
+    Y1 = []
+    Y2 = []
+    for i in range(batch_size):
+        x, y1, y2 = create_array()
+        X.append(x)
+        Y1.append(y1)
+        Y2.append(y2)
+    X = np.vstack(X)
+    Y1 = np.vstack(Y1)
+    Y2 = np.vstack(Y2)            
+    return X, Y1, Y2
+
 def shuffle(batch_size):
     step = 0
     while (1):
@@ -186,17 +200,17 @@ def shuffle(batch_size):
         else:
             yield step, X, Y1, Y2
         step += 1
-
+        X, Y1, Y2 = create_many_arrays(batch_size)
     
-        X = []
-        Y1 = []
-        Y2 = []
-        for i in range(batch_size):
-            x, y1, y2 = create_array()
-            X.append(x)
-            Y1.append(y1)
-            Y2.append(y2)
-        X = np.vstack(X)
-        Y1 = np.vstack(Y1)
-        Y2 = np.vstack(Y2)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         #X, Y1, Y2 are ready to yeild
