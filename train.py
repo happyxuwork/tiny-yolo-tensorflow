@@ -72,12 +72,28 @@ with tf.Session() as sess:
 
     hm_steps = 400000
     sess.run(tf.global_variables_initializer())
-    step = 0
+
+
+
+
+
     for batch in shuffle():
-        Xp, Y1p, Y2p = batch
-        step += 1
+        step, Xp, Y1p, Y2p = batch
+        if step == 0:
+            time.sleep(1)
+            continue
+        debugger = tf.is_nan(loss)
+        while (1):
+            if sess.run(debugger, feed_dict = {X:Xp, Y1:Y1p, Y2:Y2p}):
+                break
+            else:
+                print("Re-random variables!")
+                sess.run(tf.global_variables_initializer())
+
+
+
         _ , lossp, summary = sess.run([trainer, loss, merge], feed_dict = {X: Xp, Y1: Y1p, Y2:Y2p})
-        #print(sess.run(tf.reduce_mean(h1), feed_dict = {X:Xp}))
+
         train_writer.add_summary(summary, step)
         print("Step {} : loss {}".format(step, lossp))
 

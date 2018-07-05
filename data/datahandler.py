@@ -137,15 +137,10 @@ def which_anchor(box):
 def shuffle(batch_size = 1):
     step = 0
     while (1):
-        #yield step
-        
-        #if (step!=0):
-        #    del Xp
-        #    del Y1p
-        #    del Y2p
-        #    os.remove("/dev/shm/X")
-        #    os.remove("/dev/shm/Y1")
-        #    os.remove("/dev/shm/Y2")
+        if (step == 0):
+            yield step, None, None, None
+        else:
+            yield step, X, Y1, Y2
         step += 1
 
         #data augmentation
@@ -155,10 +150,6 @@ def shuffle(batch_size = 1):
         out_height = height//32
         out_width = width//32
         out_depth = 3*(5+classes)
-
-        #Xp = np.memmap("/dev/shm/X", dtype = np.float32, mode = "w+", shape = (batch_size, height, width, depth))
-        #Y1p = np.memmap("/dev/shm/Y1", dtype = np.float32, mode = "w+", shape = (batch_size, out_height, out_width, out_depth))
-        #Y2p = np.memmap("/dev/shm/Y2", dtype = np.float32, mode = "w+", shape = (batch_size, 2*out_height, 2*out_width, out_depth))
         
         X = image
         Y1 = np.random.random((batch_size, out_height, out_width, out_depth))
@@ -192,8 +183,6 @@ def shuffle(batch_size = 1):
                 Y2[0, y, x, 4+i*(2*out_depth//3)] = h0
                 Y2[0, y, x, 4:(i+1)*(2*out_depth//3)] = 0
                 Y2[0, y, x, cls] = 1
-        #Xp[:] = X[:]
-        #Y1p[:] = Y1[:]
-        #Y2p[:] = Y2[:]
 
-        yield X, Y1, Y2
+
+         #X, Y1, Y2 are ready to yeild
