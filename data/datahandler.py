@@ -191,26 +191,8 @@ def shuffle(batch_size):
         X = []
         Y1 = []
         Y2 = []
-        #mp block
-        hm_p = 4
-        pool = mp.Pool(processes = hm_p)
-        def create_many_arrays(n):
-            X = []
-            Y1 = []
-            Y2 = []
-            for i in range(n):
-                x, y1, y2 = create_array()
-                X.append(x)
-                Y1.append(y1)
-                Y2.append(y2)
-            X = np.vstack(X)
-            Y1 = np.vstack(Y1)
-            Y2 = np.vstack(Y2)
-            return X, Y1, Y2
-
-        results = [pool.apply_async(create_many_arrays, args = (batch_size//hm_p,)) for i in range(hm_p)]
-        for p in results:
-            x, y1, y2 = p.get()
+        for i in range(batch_size):
+            x, y1, y2 = create_array()
             X.append(x)
             Y1.append(y1)
             Y2.append(y2)
