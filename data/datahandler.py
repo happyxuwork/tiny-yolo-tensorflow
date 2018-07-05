@@ -134,6 +134,49 @@ def which_anchor(box):
     i = dist.index(max(dist))
     return i
 
+def create_array():
+    image, label = create()
+    _, height, width, depth = image.shape
+    classes = 80
+    out_height = height//32
+    out_width = width//32
+    out_depth = 3*(5+classes)
+    
+    X = image
+    Y1 = np.random.random((batch_size, out_height, out_width, out_depth))
+    Y2 = np.random.random((batch_size, 2*out_height, 2*out_width, out_depth))
+    for i in range(3):
+        Y1[:, :, :, i*(out_depth//3)] = 1
+        Y2[:, :, :, i*(out_depth//3)] = 1
+    #convert label to array
+    for obj in label:
+        cls, x0, y0, w0, h0 = obj
+        if x0<0 or x0>=1 or y0<0 or y0>=1: continue
+        box = (w0, h0)
+        i = which_anchor(box)
+        if (i<3): #anchor1
+            x = int(out_width*x0)
+            y = int(out_height*y0)
+            Y1[0, y, x, 0+i*(out_depth//3)] = 1
+            Y1[0, y, x, 1+i*(out_depth//3)] = x0
+            Y1[0, y, x, 2+i*(out_depth//3)] = y0
+            Y1[0, y, x, 3+i*(out_depth//3)] = w0
+            Y1[0, y, x, 4+i*(out_depth//3)] = h0
+            Y1[0, y, x, 4:(i+1)*(out_depth//3)] = 0
+            Y1[0, y, x, cls] = 1
+        else: #anchor2
+            i = i - 3
+            x = int(2*out_width*x0)
+            y = int(2*out_height*y0)
+            Y2[0, y, x, 0+i*(2*out_depth//3)] = 1 
+            Y2[0, y, x, 1+i*(2*out_depth//3)] = x0
+            Y2[0, y, x, 2+i*(2*out_depth//3)] = y0
+            Y2[0, y, x, 3+i*(2*out_depth//3)] = w0
+            Y2[0, y, x, 4+i*(2*out_depth//3)] = h0
+            Y2[0, y, x, 4:(i+1)*(2*out_depth//3)] = 0
+            Y2[0, y, x, cls] = 1
+    return X, Y1, Y2
+
 def shuffle(batch_size = 1):
     step = 0
     while (1):
@@ -143,46 +186,16 @@ def shuffle(batch_size = 1):
             yield step, X, Y1, Y2
         step += 1
 
-        #data augmentation
-        image, label = create()
-        _, height, width, depth = image.shape
-        classes = 80
-        out_height = height//32
-        out_width = width//32
-        out_depth = 3*(5+classes)
-        
-        X = image
-        Y1 = np.random.random((batch_size, out_height, out_width, out_depth))
-        Y2 = np.random.random((batch_size, 2*out_height, 2*out_width, out_depth))
-        for i in range(3):
-            Y1[:, :, :, i*(out_depth//3)] = 1
-            Y2[:, :, :, i*(out_depth//3)] = 1
-        #convert label to array
-        for obj in label:
-            cls, x0, y0, w0, h0 = obj
-            box = (w0, h0)
-            i = which_anchor(box)
-            if (i<3): #anchor1
-                x = int(out_width*x0)
-                y = int(out_height*y0)
-                Y1[0, y, x, 0+i*(out_depth//3)] = 1
-                Y1[0, y, x, 1+i*(out_depth//3)] = x0
-                Y1[0, y, x, 2+i*(out_depth//3)] = y0
-                Y1[0, y, x, 3+i*(out_depth//3)] = w0
-                Y1[0, y, x, 4+i*(out_depth//3)] = h0
-                Y1[0, y, x, 4:(i+1)*(out_depth//3)] = 0
-                Y1[0, y, x, cls] = 1
-            else: #anchor2
-                i = i - 3
-                x = int(2*out_width*x0)
-                y = int(2*out_height*y0)
-                Y2[0, y, x, 0+i*(2*out_depth//3)] = 1 
-                Y2[0, y, x, 1+i*(2*out_depth//3)] = x0
-                Y2[0, y, x, 2+i*(2*out_depth//3)] = y0
-                Y2[0, y, x, 3+i*(2*out_depth//3)] = w0
-                Y2[0, y, x, 4+i*(2*out_depth//3)] = h0
-                Y2[0, y, x, 4:(i+1)*(2*out_depth//3)] = 0
-                Y2[0, y, x, cls] = 1
-
-
-         #X, Y1, Y2 are ready to yeild
+    
+        X = []
+        Y1 = []
+        Y2 = []
+        for i in range(batch_size):
+            x, y1, y2 = create_array()
+            X.append(x)
+            Y1.append(y1)
+            Y2.append(y2)
+        X = np.vstack(X)
+        Y1 = np.vstack(Y1)
+        Y2 = np.vstack(Y2)
+        #X, Y1, Y2 are ready to yeild
