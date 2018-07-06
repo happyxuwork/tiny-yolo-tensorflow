@@ -2,10 +2,10 @@
 from data.datahandler import shuffle
 import tensorflow as tf
 import numpy as np
-import time
 import os
 import sys
 import shutil
+import time
 
 saver = tf.train.import_meta_graph("./graph/tiny-yolo.ckpt.meta")
 with tf.Session() as sess:
@@ -52,6 +52,8 @@ with tf.Session() as sess:
     saver = tf.train.Saver()
     tf.summary.histogram("loss", loss)
     merge = tf.summary.merge_all()
+
+
 
     hm_steps = 400000
     sess.run(tf.global_variables_initializer())
