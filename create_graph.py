@@ -5,28 +5,30 @@ g1 = tf.Graph()
 
 with g1.as_default() as g:
     with g.name_scope("YOLO"):
-        def conv(n, in_name, out_channels, kernel_size, stride, padding="SAME", nonlin="relu", binary=0):
+        def conv(n, in_name, out_channels, kernel_size, stride, padding="SAME", nonlin="relu", keep_prob=1):
             in_tensor = g.get_tensor_by_name(in_name)
             batch_size, height, width, in_channels = in_tensor.get_shape().as_list()
             with g.name_scope("conv_{}".format(n)):
-                kernel = tf.Variable(tf.random_normal(shape = [kernel_size, kernel_size, in_channels, out_channels])/100, dtype = tf.float32, name = "kernel")
+                kernel = tf.Variable(tf.random_normal(shape = [kernel_size, kernel_size, in_channels, out_channels])/ (kernel_size*kernel_size*out_channels) , dtype = tf.float32, name = "kernel")
                 scale = tf.Variable(tf.random_normal(shape = [1,]), dtype = tf.float32, name = "scale")
                 bias = tf.Variable(tf.random_normal(shape = [1,]), dtype = tf.float32, name = "bias")
                 '''
                 conv
                 batchnorm + bias + scale
+                drop
                 nonlin
                 '''
                 strides = (1, stride, stride, 1)
                 conv = tf.nn.conv2d(in_tensor, kernel, strides, padding, name = "conv")
                 mean_conv, var_conv = tf.nn.moments(conv, axes = [1,2,3], keep_dims = True)
                 batchnorm = tf.nn.batch_normalization(conv, mean_conv, var_conv, bias, scale, 1e-100)
+                drop = tf.nn.dropout(batchnorm, keep_prob, name = "drop")
                 if nonlin == "relu":
-                    nonlin = tf.nn.leaky_relu(batchnorm)
+                    nonlin = tf.nn.leaky_relu(drop)
                 elif nonlin == "sigmoid":
-                    nonlin = tf.sigmoid(batchnorm)
+                    nonlin = tf.sigmoid(drop)
                 elif nonlin == "linear":
-                    nonlin = tf.identity(batchnorm)
+                    nonlin = tf.identity(drop)
                 else:
                     raise Exception(" \"{}\" is not a nonlinear function!".format(nonlin))
                 conv = tf.identity(nonlin, name = "out")
@@ -145,9 +147,9 @@ with g1.as_default() as g:
         #12
         conv(12, "YOLO/maxpool_11/out:0", 1024, 3, 1)
         #13
-        conv(13, "YOLO/conv_12/out:0", 256, 1, 1)
+        conv(13, "YOLO/conv_12/out:0", 256, 1, 1, keep_prob=0.5)
         #14
-        conv(14, "YOLO/conv_13/out:0", 512, 3, 1)
+        conv(14, "YOLO/conv_13/out:0", 512, 3, 1, keep_prob=0.5)
         #15
         conv(15, "YOLO/conv_14/out:0", 255, 1, 1, nonlin = "linear")
         #16
@@ -155,7 +157,7 @@ with g1.as_default() as g:
         #17
         route(17, "YOLO/conv_13/out:0", None)
         #18
-        conv(18, "YOLO/route_17/out:0", 128, 1, 1)
+        conv(18, "YOLO/route_17/out:0", 128, 1, 1, keep_prob=0.5)
         #19
         upsample(19, "YOLO/conv_18/out:0", 2)
         #20

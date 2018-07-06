@@ -193,14 +193,18 @@ def create_many_arrays(batch_size, input_size):
     return X, Y1, Y2
 
 def shuffle(batch_size, input_size):
-    step = 0
+    global step = 0
+    '''
     while (1):
         if (step == 0):
             yield step, None, None, None
         else:
             yield step, X, Y1, Y2
         step += 1
-        X, Y1, Y2 = create_many_arrays(batch_size, input_size)
+    '''
+    step += 1
+    X, Y1, Y2 = create_many_arrays(batch_size, input_size)
+    return X, Y1, Y2
     
     
     
