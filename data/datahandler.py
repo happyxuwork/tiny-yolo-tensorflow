@@ -192,19 +192,16 @@ def create_many_arrays(batch_size, input_size):
     Y2 = np.vstack(Y2)            
     return X, Y1, Y2
 
+
 def shuffle(batch_size, input_size):
-    global step = 0
-    '''
+    step = 0
     while (1):
         if (step == 0):
             yield step, None, None, None
         else:
             yield step, X, Y1, Y2
         step += 1
-    '''
-    step += 1
-    X, Y1, Y2 = create_many_arrays(batch_size, input_size)
-    return X, Y1, Y2
+        X, Y1, Y2 = create_many_arrays(batch_size, input_size)
     
     
     
