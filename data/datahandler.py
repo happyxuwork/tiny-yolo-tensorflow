@@ -28,7 +28,7 @@ images_list = os.listdir(images_path)
 
 
 
-def create(input_size=416, flip=1, crop=0.9, angle=10, color = 0.05):
+def create(input_size, flip=1, crop=0.9, angle=10, color = 0.05):
     image_name = random.choice(images_list)
     image_path = os.path.join(images_path, image_name)
     label_name = image_name.split(".")[0] + ".txt"
@@ -135,8 +135,8 @@ def which_anchor(box):
     i = dist.index(max(dist))
     return i
 
-def create_array():
-    image, label = create()
+def create_array(input_size):
+    image, label = create(input_size)
     _, height, width, depth = image.shape
     classes = 80
     out_height = height//32
@@ -178,12 +178,12 @@ def create_array():
             Y2[0, y, x, cls] = 1
     return X, Y1, Y2
 
-def create_many_arrays(batch_size):
+def create_many_arrays(batch_size, input_size):
     X = []
     Y1 = []
     Y2 = []
     for i in range(batch_size):
-        x, y1, y2 = create_array()
+        x, y1, y2 = create_array(input_size)
         X.append(x)
         Y1.append(y1)
         Y2.append(y2)
@@ -192,7 +192,7 @@ def create_many_arrays(batch_size):
     Y2 = np.vstack(Y2)            
     return X, Y1, Y2
 
-def shuffle(batch_size):
+def shuffle(batch_size, input_size):
     step = 0
     while (1):
         if (step == 0):
@@ -200,7 +200,7 @@ def shuffle(batch_size):
         else:
             yield step, X, Y1, Y2
         step += 1
-        X, Y1, Y2 = create_many_arrays(batch_size)
+        X, Y1, Y2 = create_many_arrays(batch_size, input_size)
     
     
     

@@ -56,11 +56,8 @@ with tf.Session() as sess:
     hm_steps = 400000
     sess.run(tf.global_variables_initializer())
 
-
-
-
-
-    for batch in shuffle(batch_size):
+    input_size = height
+    for batch in shuffle(batch_size, input_size):
         step, Xp, Y1p, Y2p = batch
         if step == 0:
             time.sleep(1)
