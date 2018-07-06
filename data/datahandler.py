@@ -9,22 +9,8 @@ data_path = "./data"
 
 images_path = os.path.join(data_path, "images")
 labels_path = os.path.join(data_path, "labels")
-'''
-count = 0
-for image_name in os.listdir(images_path):
 
-    image_path = os.path.join(images_path, image_name)
-    label_name = image_name.split(".")[0] + ".txt"
-    label_path = os.path.join(labels_path, label_name)
-
-    if not os.path.exists(label_path):
-        count += 1
-        print(count, image_path)
-        #sh.touch(label_path)
-'''
 images_list = os.listdir(images_path)
-
-
 
 def create(input_size, flip=1, crop=0.9, angle=10, color = 0.05):
     image_name = random.choice(images_list)
@@ -190,7 +176,6 @@ def create_many_arrays(batch_size, input_size):
     Y2 = np.vstack(Y2)            
     return X, Y1, Y2
 
-
 def shuffle(batch_size, input_size):
     step = 0
     while (1):
@@ -200,16 +185,4 @@ def shuffle(batch_size, input_size):
             yield step, X, Y1, Y2
         step += 1
         X, Y1, Y2 = create_many_arrays(batch_size, input_size)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        #X, Y1, Y2 are ready to yeild
+
