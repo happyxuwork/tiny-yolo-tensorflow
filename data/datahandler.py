@@ -89,22 +89,6 @@ def create(input_size, flip=1, crop=0.9, angle=10, color = 0.05):
             label.append((cls, x0, y0, w0, h0))
     return image, label
 
-if __name__ == "__main__":
-    image, label = create()
-    image = image.astype(np.int32).reshape(416,416,3)
-    print(image.shape)
-    for obj in label:
-        cls, x0, y0, w0, h0 = obj
-        x1 = int((x0 - w0/2)*416)
-        x2 = int((x0 + w0/2)*416)
-        y1 = int((y0 - h0/2)*416)
-        y2 = int((y0 + h0/2)*416)
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0,0,0),2)
-
-    cv2.imwrite("temp.jpg", image)
-    sh.eog("temp.jpg")
-    sh.rm("temp.jpg")
-
 def IoU(box1, box2):
     w1, h1 = box1
     w2, h2 = box2
@@ -189,3 +173,18 @@ def shuffle(batch_size, input_size):
         step += 1
         X, Y1, Y2 = create_many_arrays(batch_size, input_size)
 
+if __name__ == "__main__":
+    image, label = create(416)
+    image = image.astype(np.int32).reshape(416,416,3)
+    print(image.shape)
+    for obj in label:
+        cls, x0, y0, w0, h0 = obj
+        x1 = int((x0 - w0/2)*416)
+        x2 = int((x0 + w0/2)*416)
+        y1 = int((y0 - h0/2)*416)
+        y2 = int((y0 + h0/2)*416)
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0,0,0),2)
+
+    cv2.imwrite("temp.jpg", image)
+    sh.eog("temp.jpg")
+    sh.rm("temp.jpg")                                            
