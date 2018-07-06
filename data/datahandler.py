@@ -11,7 +11,6 @@ images_path = os.path.join(data_path, "images")
 labels_path = os.path.join(data_path, "labels")
 '''
 count = 0
-import pdb
 for image_name in os.listdir(images_path):
 
     image_path = os.path.join(images_path, image_name)
