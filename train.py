@@ -77,7 +77,7 @@ with tf.Session() as sess:
         train_writer.add_summary(summary, step)
         print("Step {} : loss {}".format(step, lossp))
 
-        if (step % 80000 ==0):
+        if (step % 1250 ==0):
             saver.save(sess, "./train_graph/tiny-yolo-{}.ckpt".format(step))
         
 
